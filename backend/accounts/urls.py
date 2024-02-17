@@ -7,13 +7,13 @@ def hello(request):
 
 urlpatterns = [
     path('', hello, name="home"),
-    path('customer/register/', register_attempt, name="register_attempt"),
-    path('customer/login/', login_attempt, name="login_attempt"),
-    path('customer/token/', token_send, name="token_send"),
-    path('customer/success/', success, name='success'),
-    path('customer/verify/<auth_token>/', verify, name="verify"),
-    path('customer/error/', error_page, name="error"),
-    path('customer/logout/', logout_view, name='logout'),
-    path('customer/reset_password/', password_reset, name='password_reset'),
-    path('customer/reset_password/<str:auth_token>/', password_reset_confirm, name='password_reset_confirm'),
+    path('register/', register_attempt, name="register_attempt"),
+    path('login/', login_attempt, name="login_attempt"),
+    path('token/', token_send, name="token_send"),
+    path('success/', success, name='success'),
+    path('verify/<auth_token>/', verify, name="verify"),
+    path('error/', error_page, name="error"),
+    path('logout/', logout_view, name='logout'),
+    path('reset_password/', password_reset, name='password_reset'),
+    path('reset_password/<str:auth_token>/', password_reset_confirm, name='password_reset_confirm'),
 ]

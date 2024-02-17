@@ -11,3 +11,5 @@ urlpatterns = [
     path('add-comment/<int:product_id>/', add_comment, name='api_add_comment'),
     path('add-rating/<int:product_id>/', add_rating, name='api_add_rating'),
 ]
+
+
