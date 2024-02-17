@@ -91,6 +91,7 @@ def password_reset(request):
 
     return JsonResponse({'message': 'Method not allowed'}, status=405)
 
+
 def send_password_reset_email(email, token):
     subject = 'Password Reset'
     message = f'Click the link to reset your password: http://127.0.0.1:8000/reset_password/{token}'
@@ -102,24 +103,30 @@ def send_password_reset_email(email, token):
 
     send_mail(subject, message, email_from, recipient_list)
 
+@csrf_exempt
 def password_reset_confirm(request, auth_token):
-    if request.method == 'POST':
+    if request.content_type == 'application/json':
+        data = json.loads(request.body)
+        new_password = data.get('new_password')
+        confirm_password = data.get('confirm_password')
+    else:
         new_password = request.POST.get('new_password')
         confirm_password = request.POST.get('confirm_password')
 
-        if new_password == confirm_password:
-            CustomerProfile_obj = CustomerProfile.objects.filter(auth_token=auth_token).first()
-            if CustomerProfile_obj:
-                user = CustomerProfile_obj.user
-                user.set_password(new_password)
-                user.save()
-                return JsonResponse({'message': 'Password reset successfully.'})
-            else:
-                return JsonResponse({'message': 'Invalid token.'}, status=400)
+    if new_password == confirm_password:
+        CustomerProfile_obj = CustomerProfile.objects.filter(auth_token=auth_token).first()
+        if CustomerProfile_obj:
+            user = CustomerProfile_obj.user
+            user.set_password(new_password)
+            user.save()
+            return JsonResponse({'message': 'Password reset successfully.'})
         else:
-            return JsonResponse({'message': 'Passwords do not match.'}, status=400)
+            return JsonResponse({'message': 'Invalid token.'}, status=400)
+    else:
+        return JsonResponse({'message': 'Passwords do not match.'}, status=400)
 
     return JsonResponse({'message': 'Method not allowed'}, status=405)
+
 
 @csrf_exempt
 def register_attempt(request):
