@@ -37,29 +37,40 @@ def home(request):
 
 @csrf_exempt
 def login_attempt(request):
-    if request.content_type == 'application/json':
-        data = json.loads(request.body)
-        username = data.get('username')
-        password = data.get('password')
-    else:
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+    if request.method == 'POST':
+        if request.content_type == 'application/json':
+            data = json.loads(request.body)
+            username = data.get('username')
+            password = data.get('password')
+        else:
+            username = request.POST.get('username')
+            password = request.POST.get('password')
 
-    user_obj = User.objects.filter(username=username).first()
-    if user_obj is None:
-        return JsonResponse({'message': 'User not found.'}, status=400)
+        user_obj = User.objects.filter(username=username).first()
+        if user_obj is None:
+            return JsonResponse({'message': 'User not found.'}, status=400)
 
-    CustomerProfile_obj = CustomerProfile.objects.filter(user=user_obj).first()
+        customer_profile_obj = CustomerProfile.objects.filter(user=user_obj).first()
 
-    if not CustomerProfile_obj.is_verified:
-        return JsonResponse({'message': 'CustomerProfile is not verified. Check your mail.'}, status=400)
+        if not customer_profile_obj.is_verified:
+            return JsonResponse({'message': 'CustomerProfile is not verified. Check your mail.'}, status=400)
 
-    user = authenticate(username=username, password=password)
-    if user is None:
-        return JsonResponse({'message': 'Wrong password.'}, status=400)
+        user = authenticate(username=username, password=password)
+        if user is None:
+            return JsonResponse({'message': 'Wrong password.'}, status=400)
 
-    login(request, user)
-    return JsonResponse({'message': f'Hello, {username}!'})
+        login(request, user)
+
+        # Set a cookie with the username
+        response = JsonResponse({
+            'message': f'Hello, {username}!',
+            'username': username,
+            'cookie': request.COOKIES.get('username')
+        })
+        response.set_cookie('username', username)
+
+        return response
+
     return JsonResponse({'message': 'Method not allowed'}, status=405)
 
 
